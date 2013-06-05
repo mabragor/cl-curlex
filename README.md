@@ -66,7 +66,7 @@ TODO:
   - support major CL implementations
     - (done) SBCL
     - (wont, don't have an access to sources or other spec of non-standard features) Allegro
-    - CLISP
+    - CLISP (there is no centralized concept of lexical environment - dont know, what to do)
     - CMUCL
     - ECL
     - LispWorks - probably won't have the sources either
