@@ -4,6 +4,7 @@ cl-yaclyaml
 Leak *LEXENV* variable which describes current lexical environment into body of a call.
 
 Basic example:
+
         CL-USER> (ql:quickload 'cl-curlex)
         CL-USER> (cl-curlex:with-current-lexenv *lexenv*)
         #S(SB-KERNEL:LEXENV
