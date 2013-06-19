@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (defpackage :cl-curlex-tests
-  (:use :cl :cl-curlex :eos)
+  (:use :cl :cl-curlex :eos :iterate)
   (:export #:run-tests))
 
 (in-package :cl-curlex-tests)
@@ -21,8 +21,11 @@
     (with-current-lexenv
 	(#+cmucl c::lexenv-variables
 		 #+sbcl sb-c::lexenv-vars
+		 #+ecl compiler::cmp-env-variables
 		 *lexenv*))))
 
 (test simple
-  (is (equal '((b) (a)) (foo))))
+  (is (equal '((b) (a)) (iter (for elt in (foo))
+			      (if (find (car elt) '(b a))
+				  (collect (list (car elt))))))))
   

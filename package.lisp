@@ -1,7 +1,8 @@
 ;;;; package.lisp
 
 (defpackage #:cl-curlex
-  #+sbcl(:use #:cl #:sb-c)
-  #+cmucl(:use #:cl #:c)
+  (:use #:cl #+sbcl #:sb-c
+	#+cmucl #:c
+	#+ecl #:compiler)
   (:export #:with-current-lexenv #:fart-current-lexenv))
 

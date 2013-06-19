@@ -72,5 +72,9 @@ TODO:
     - CMUCL
       - same as SBCL, only names of variables, functions and so on are captured.
     - ECL
+      - actual values of variables, functions etc are also stripped
+      - I also removed :DECLARE's and 'LBs, since I don't know how to handle them smartly
+      - WITH-CURRENT-LEXENV and FART-CURRENT-LEXENV work only when compiled, not from the Slime's REPL.
+        Although compiled function can, of course, be invoked from the REPL, with the desired results.
     - LispWorks - probably won't have the sources either
     - OpenMCL

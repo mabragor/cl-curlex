@@ -14,13 +14,14 @@
   :license "GPL"
   :components (#+sbcl(:file "sbcl")
 		     #+cmucl(:file "cmucl")
-		     #-(or sbcl cmucl)(:file "not-implemented")
+		     #+ecl(:file "ecl")
+		     #-(or sbcl cmucl ecl)(:file "not-implemented")
 	       (:file "package")))
 
 (defsystem :cl-curlex-tests
   :description "Tests for CL-CURLEX."
   :licence "GPL"
-  :depends-on (:cl-curlex :eos)
+  :depends-on (:cl-curlex :eos :iterate)
   :components ((:file "tests")))
 
 (defmethod perform ((op test-op) (sys (eql (find-system :cl-curlex))))
