@@ -15,7 +15,8 @@
   :components (#+sbcl(:file "sbcl")
 		     #+cmucl(:file "cmucl")
 		     #+ecl(:file "ecl")
-		     #-(or sbcl cmucl ecl)(:file "not-implemented")
+		     #+ccl(:file "ccl")
+		     #-(or sbcl cmucl ecl ccl)(:file "not-implemented")
 	       (:file "package")))
 
 (defsystem :cl-curlex-tests

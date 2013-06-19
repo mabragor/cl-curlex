@@ -77,4 +77,5 @@ TODO:
       - WITH-CURRENT-LEXENV and FART-CURRENT-LEXENV work only when compiled, not from the Slime's REPL.
         Although compiled function can, of course, be invoked from the REPL, with the desired results.
     - LispWorks - probably won't have the sources either
-    - OpenMCL
+    - OpenMCL (Clozure CL)
+      - only variables and functions are captured

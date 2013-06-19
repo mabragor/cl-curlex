@@ -22,10 +22,15 @@
 	(#+cmucl c::lexenv-variables
 		 #+sbcl sb-c::lexenv-vars
 		 #+ecl compiler::cmp-env-variables
+		 #+ccl ccl::lexenv.variables
 		 *lexenv*))))
 
 (test simple
-  (is (equal '((b) (a)) (iter (for elt in (foo))
-			      (if (find (car elt) '(b a))
-				  (collect (list (car elt))))))))
+  (is (equal '((b) (a)) #-ccl(iter (for elt in (foo))
+				   (if (find (car elt) '(b a))
+				       (collect (list (car elt)))))
+	     #+ccl (mapcar (lambda (x)
+			     (list (ccl::var-name x)))
+			   (foo))
+	     )))
   
