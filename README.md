@@ -64,11 +64,13 @@ will be (intentionally) implementation specific.
 
 TODO:
   - support major CL implementations
-    - SBCL : lexenv capture is not full, only names of functions, variables and so on are captured,
-      advanced features like package locks and policies are not captured
+    - SBCL
+      - lexenv capture is not full, only names of functions, variables and so on are captured,
+        advanced features like package locks and policies are not captured
     - (wont, don't have an access to sources or other spec of non-standard features) Allegro
     - CLISP
     - CMUCL
+      - same as SBCL, only names of variables, functions and so on are captured.
     - ECL
     - LispWorks - probably won't have the sources either
     - OpenMCL
