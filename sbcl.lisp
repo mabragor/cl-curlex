@@ -35,3 +35,22 @@
 				      ,@body))))
 
 (export '(with-current-lexenv))
+
+(def-ir1-translator abbrolet (((&rest clauses) &body body) start next result)
+  "Define abbreviations for macros and functions, defined in current lexenv."
+  (let (res)
+    (dolist (clause clauses
+	     (let ((*lexenv* (make-lexenv :funs (nconc res (lexenv-funs *lexenv*)))))
+	       (ir1-convert-progn-body start next result body)))
+      (destructuring-bind (short long) clause
+	(let ((it (assoc long (lexenv-funs *lexenv*))))
+	  (if it
+	      (push `(,short . ,(cdr it)) res)
+	      (let ((it (macro-function long)))
+		(if it
+		    (push `(,short macro . ,it) res)
+		    (if (fboundp long)
+			(push `(,short . ,(fdefinition long)) res)
+			(error "Name ~a does not designate any global or local function or macro" long))))))))))
+
+(export '(abbrolet))

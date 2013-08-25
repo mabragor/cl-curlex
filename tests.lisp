@@ -34,3 +34,13 @@
 			   (foo))
 	     )))
   
+#+sbcl
+(defun abbro-foo ()
+  (macrolet ((bar () 456))
+    (abbrolet ((foo bar))
+	      (foo))))
+
+#+sbcl
+(test abbrolet-with-macrolet
+  (is (equal 456
+	     (abbro-foo))))

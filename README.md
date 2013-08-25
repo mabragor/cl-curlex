@@ -2,6 +2,7 @@ cl-curlex
 ===========
 
 Leak *LEXENV* variable which describes current lexical environment into body of a call.
+Update: do other exotic stuff, which requires access to the current lexical environment.
 
 Basic example:
 
@@ -51,8 +52,17 @@ Slightly more sophisticated:
                      (SAFETY . 1) (SPACE . 1) (SPEED . 1))
            :USER-DATA NIL)
 
-Package exports two macro - FART-CURRENT-LEXENV which simply prints current lexenv, but not leaks it into its body
-and WITH-CURRENT-LEXENV, which leaks *LEXENV* variable into its body.
+Example of use of ABBROLET:
+
+        CL-USER> (macrolet ((bar () 123))
+                   (cl-curlex:abbrolet ((foo bar))
+                     (foo)))
+        123
+
+Package exports several macros that do interesting stuff with current lexical environment:
+  - FART-CURRENT-LEXENV which simply prints current lexenv, but not leaks it into its body,
+  - WITH-CURRENT-LEXENV, which leaks *LEXENV* variable into its body
+  - ABBROLET, which allows to locally function or macro with another name
 
 N.B.: leaking is for reading purposes only, and *LEXENV* captures state of lexical environment as it were on enter
 to WITH-CURRENT-LEXENV, not as it is when *LEXENV* var is used - this is why in the "sophisticated" example
@@ -62,8 +72,14 @@ inside.
 N.B.: Although the ultimate goal is to leak lexenv in all major implementations, the form of a *LEXENV*
 will be (intentionally) implementation specific.
 
+Main use-case for ABBROLET is to locallly INTERN some function or macro from one package to another,
+see e.g. my CL-LARVAL project to see, how it's used to define DSL *locally*.
+
+        CL-USER> (abbrolet ((name1 other-package::name2))
+                   (name1 a b c))
+
 TODO:
-  - support major CL implementations
+  - support major CL implementations for *-current-lexenv macros
     - SBCL
       - lexenv capture is not full, only names of functions, variables and so on are captured,
         advanced features like package locks and policies are not captured
@@ -79,3 +95,5 @@ TODO:
     - LispWorks - probably won't have the sources either
     - OpenMCL (Clozure CL)
       - only variables and functions are captured
+  - support major CL implementations for ABBROLET
+    - so far only SBCL is done
