@@ -30,3 +30,29 @@
 
 (export '(with-current-lexenv))
 
+(defun c1abbrolet (args)
+  "Define abbreviations for macros and functions, defined in current lexenv."
+  (destructuring-bind ((&rest clauses) &body body) args
+    (let (res-macros res-funs)
+      (dolist (clause clauses
+	       (let* ((*lexenv* (make-lexenv :funs res-macros))
+		      (*lexenv* (make-lexenv :funs res-funs)))
+		 (ir1-convert-progn-body start next result body)))
+	(destructuring-bind (short long) clause
+	  (let ((it (assoc long (lexenv-funs *lexenv*))))
+	    (if it
+		(if (and (consp (cdr it)) (eq (cadr it) 'macro))
+		    (push `(,short . ,(cdr it)) res-macros)
+		    (push `(,short . ,(cdr it)) res-funs))
+		(let ((it (macro-function long)))
+		  (if it
+		      (push `(,short macro . ,it) res-macros)
+		      (if (fboundp long)
+			  (let ((it (find-free-fun long "shouldn't happen (no c-macro)")))
+			    (push `(,short . ,it) res-funs))
+			  (error "Name ~a does not designate any global or local function or macro" long))))))))))
+
+(setf (gethash 'abbrolet *c1-dispatch-table*) 'c1abbrolet)
+(setf (gethash 'abbrolet *t1-dispatch-table*) 'c1abbrolet)
+
+(export '(abbrolet))
