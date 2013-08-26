@@ -1,4 +1,4 @@
-;;;; Backend for SBCL
+;;;; Backend for CMUCL
 
 (in-package #:c)
 
@@ -39,4 +39,33 @@
 		      ;; (declare (ignorable ,(intern "*LEXENV*")))
 		      ,@body))))
 
-  (export '(with-current-lexenv)))
+  (export '(with-current-lexenv))
+
+  (def-ir1-translator abbrolet (((&rest clauses) &body body) start cont)
+    "Define abbreviations for macros and functions, defined in current lexenv."
+    (let (res-macros res-funs)
+      (dolist (clause clauses
+	       (let* ((*lexical-environment* (make-lexenv :functions res-macros))
+		      (*lexical-environment* (make-lexenv :functions res-funs)))
+		 (ir1-convert-progn-body start cont body)))
+	(destructuring-bind (short long) clause
+	  (let ((it (assoc long (lexenv-functions *lexical-environment*)
+			   ;; In CMUCL keys of this assoc list may be complex
+			   :test (lambda (x y)
+				   (if (consp y)
+				       (eq x (cadr y))
+				       (eq x y))))))
+	    (if it
+		(if (and (consp (cdr it)) (eq (cadr it) 'macro))
+		    (push `(,short . ,(cdr it)) res-macros)
+		    (push `(,short . ,(cdr it)) res-funs))
+		(let ((it (macro-function long)))
+		  (if it
+		      (push `(,short macro . ,it) res-macros)
+		      (if (fboundp long)
+			  (let ((it (find-free-function long "shouldn't happen (no c-macro)")))
+			    (push `(,short . ,it) res-funs))
+			  (error "Name ~a does not designate any global or local function or macro" long))))))))))
+
+  (export '(abbrolet))
+  )

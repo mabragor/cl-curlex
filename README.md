@@ -96,4 +96,5 @@ TODO:
     - OpenMCL (Clozure CL)
       - only variables and functions are captured
   - support major CL implementations for ABBROLET
-    - so far only SBCL is done
+    - SBCL done
+    - CMUCL done
