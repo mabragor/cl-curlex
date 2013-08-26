@@ -46,10 +46,9 @@
       (destructuring-bind (short long) clause
 	(let ((it (assoc long (lexenv-funs *lexenv*))))
 	  (if it
-	      (progn (format t "Yadda yadda: ~a~%" it)
-		     (if (and (consp (cdr it)) (eq (cadr it) 'macro))
-			 (push `(,short . ,(cdr it)) res-macros)
-			 (push `(,short . ,(cdr it)) res-funs)))
+	      (if (and (consp (cdr it)) (eq (cadr it) 'macro))
+		  (push `(,short . ,(cdr it)) res-macros)
+		  (push `(,short . ,(cdr it)) res-funs))
 	      (let ((it (macro-function long)))
 		(if it
 		    (push `(,short macro . ,it) res-macros)
