@@ -38,19 +38,24 @@
 
 (def-ir1-translator abbrolet (((&rest clauses) &body body) start next result)
   "Define abbreviations for macros and functions, defined in current lexenv."
-  (let (res)
+  (let (res-macros res-funs)
     (dolist (clause clauses
-	     (let ((*lexenv* (make-lexenv :funs (nconc res (lexenv-funs *lexenv*)))))
+	     (let* ((*lexenv* (make-lexenv :funs res-macros))
+		    (*lexenv* (make-lexenv :funs res-funs)))
 	       (ir1-convert-progn-body start next result body)))
       (destructuring-bind (short long) clause
 	(let ((it (assoc long (lexenv-funs *lexenv*))))
 	  (if it
-	      (push `(,short . ,(cdr it)) res)
+	      (progn (format t "Yadda yadda: ~a~%" it)
+		     (if (and (consp (cdr it)) (eq (cadr it) 'macro))
+			 (push `(,short . ,(cdr it)) res-macros)
+			 (push `(,short . ,(cdr it)) res-funs)))
 	      (let ((it (macro-function long)))
 		(if it
-		    (push `(,short macro . ,it) res)
+		    (push `(,short macro . ,it) res-macros)
 		    (if (fboundp long)
-			(push `(,short . ,(fdefinition long)) res)
+			(let ((it (find-free-fun long "shouldn't happen (no c-macro)")))
+			  (push `(,short . ,it) res-funs))
 			(error "Name ~a does not designate any global or local function or macro" long))))))))))
 
 (export '(abbrolet))

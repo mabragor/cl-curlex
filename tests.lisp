@@ -35,12 +35,32 @@
 	     )))
   
 #+sbcl
-(defun abbro-foo ()
+(defun abbro-macrolet ()
   (macrolet ((bar () 456))
     (abbrolet ((foo bar))
 	      (foo))))
+#+sbcl
+(defun abbro-flet ()
+  (flet ((bar () 456))
+    (abbrolet ((foo bar))
+	      (foo))))
+
+
+(defun model-global-function ()
+  123)
+(defmacro model-global-macro ()
+  123)
 
 #+sbcl
-(test abbrolet-with-macrolet
+(test abbrolet
   (is (equal 456
-	     (abbro-foo))))
+	     (abbro-macrolet)))
+  (is (equal 456
+	     (abbro-flet)))
+  (is (equal 123
+	     (abbrolet ((foo model-global-function))
+		       (foo))))
+  (is (equal 123
+	     (abbrolet ((foo model-global-macro))
+		       (foo)))))
+  
