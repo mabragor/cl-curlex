@@ -35,24 +35,31 @@
   (destructuring-bind ((&rest clauses) &body body) args
     (let (res-macros res-funs)
       (dolist (clause clauses
-	       (let* ((*lexenv* (make-lexenv :funs res-macros))
-		      (*lexenv* (make-lexenv :funs res-funs)))
-		 (ir1-convert-progn-body start next result body)))
+	       (let ((*cmp-env* (cmp-env-copy)))
+		 (format t "~a~%" *cmp-env*)
+		 (dolist (res-fun res-funs)
+		   (push res-fun (cdr *cmp-env*)))
+		 (dolist (res-macro res-macros)
+		   (push res-macro (cdr *cmp-env*)))
+		 (format t "~a~%" *cmp-env*)
+		 (c1progn body)))
 	(destructuring-bind (short long) clause
-	  (let ((it (assoc long (lexenv-funs *lexenv*))))
+	  (let ((it (cmp-env-search-function long)))
 	    (if it
-		(if (and (consp (cdr it)) (eq (cadr it) 'macro))
-		    (push `(,short . ,(cdr it)) res-macros)
-		    (push `(,short . ,(cdr it)) res-funs))
+		(if (functionp it) ; we are dealing with macro
+		    (push `(,short macro ,it) res-macros)
+		    (push `(,short function ,it) res-funs))
 		(let ((it (macro-function long)))
 		  (if it
-		      (push `(,short macro . ,it) res-macros)
+		      (push `(,short macro ,it) res-macros)
 		      (if (fboundp long)
-			  (let ((it (find-free-fun long "shouldn't happen (no c-macro)")))
-			    (push `(,short . ,it) res-funs))
-			  (error "Name ~a does not designate any global or local function or macro" long))))))))))
+			  (progn (format t "~a~%" (fdefinition long))
+				 (push `(,short function ,(fdefinition long))
+				       res-funs))
+			  (error "Name ~a does not designate any global or local function or macro" long)))))))))))
 
 (setf (gethash 'abbrolet *c1-dispatch-table*) 'c1abbrolet)
 (setf (gethash 'abbrolet *t1-dispatch-table*) 'c1abbrolet)
 
 (export '(abbrolet))
+
