@@ -98,3 +98,4 @@ TODO:
   - support major CL implementations for ABBROLET
     - SBCL done
     - CMUCL done
+    - ECL - everything, except abbroletting global functions, done

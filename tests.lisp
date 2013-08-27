@@ -65,7 +65,7 @@
 	     (abbrolet ((foo model-global-macro))
 		       (foo)))))
   
-#+ecl
+#-ecl
 (test abbrolet-global-function
       (is (equal 123
 		 (abbrolet ((foo model-global-function))
