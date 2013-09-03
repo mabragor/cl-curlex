@@ -99,4 +99,4 @@ TODO:
     - SBCL done
     - CMUCL done
     - ECL - everything, except abbroletting global functions, done
-    - CCL - done local functions
+    - CCL - everything, except abbroletting global functions, done

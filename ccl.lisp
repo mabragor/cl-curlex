@@ -43,7 +43,7 @@
 	  (if it
 	      (progn (format t "Pushing function~%")
 		     (push `(,short function ,it) res-funs))
-	      (let ((it (macro-function long)))
+	      (let ((it (macro-function long *nx-lexical-environment*)))
 		(if it
 		    (progn (format t "Pushing macro~%")
 			   (push `(,short macro . ,it) res-macros))
