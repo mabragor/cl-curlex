@@ -70,8 +70,10 @@
   (is (equal 123
 	     (abbrolet ((foo model-global-macro))
 		       (foo)))))
-  
-#-(or ecl ccl)
+
+(test abbrolet-defun)
+
+#+(or sbcl cmucl)
 (test abbrolet-defun
       (is (equal 123
 		 (abbrolet ((foo model-global-function))
