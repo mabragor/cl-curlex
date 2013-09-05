@@ -85,6 +85,9 @@ TODO:
         advanced features like package locks and policies are not captured
     - (wont, don't have an access to sources or other spec of non-standard features) Allegro
     - CLISP
+      - there is no centralized concept of lexical environment - dont know, what to do
+      - even if there was one - WITHOUT-PACKAGE-LOCKS does not seem to work right - 
+        it converts every symbol to T, thus rendering patching of compiler impossible.
     - CMUCL
       - same as SBCL, only names of variables, functions and so on are captured.
     - ECL
