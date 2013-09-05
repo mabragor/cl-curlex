@@ -84,7 +84,7 @@ TODO:
       - lexenv capture is not full, only names of functions, variables and so on are captured,
         advanced features like package locks and policies are not captured
     - (wont, don't have an access to sources or other spec of non-standard features) Allegro
-    - CLISP
+    - CLISP (there is no centralized concept of lexical environment - dont know, what to do)
     - CMUCL
       - same as SBCL, only names of variables, functions and so on are captured.
     - ECL
