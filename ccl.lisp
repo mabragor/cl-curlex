@@ -34,19 +34,15 @@
 	     (let ((new-env (new-lexical-environment *nx-lexical-environment*)))
 	       (setf (lexenv.functions new-env) `(,.res-macros ,.(lexenv.functions new-env))
 		     (lexenv.functions new-env) `(,.res-funs ,.(lexenv.functions new-env)))
-	       (format t "successfully nooked functions and macros~%")
 	       (let ((*nx-lexical-environment* new-env))
-		 (format t "about to prognize~%")
 		 (nx1-progn-body context body))))
       (destructuring-bind (short long) clause
 	(let ((it (nx1-find-call-def long)))
 	  (if it
-	      (progn (format t "Pushing function~%")
-		     (push `(,short function ,it) res-funs))
+	      (push `(,short function ,it . ,long) res-funs)
 	      (let ((it (macro-function long *nx-lexical-environment*)))
 		(if it
-		    (progn (format t "Pushing macro~%")
-			   (push `(,short macro . ,it) res-macros))
+		    (push `(,short macro . ,it) res-macros)
 		    (error "Name ~a does not designate any global or local function or macro" long)))))))))
 
 (export '(abbrolet))
