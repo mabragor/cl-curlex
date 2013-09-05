@@ -3,7 +3,7 @@
 (in-package "CCL")
 
 (defnx1 nx1-fart-current-lexenv fart-current-lexenv context (&body body)
-  (format t "current lexenv: ~a~%" *nx-lexical-environment*)
+  (format t "current lexenv: ~a ~a~%" *nx-lexical-environment* (lexenv.functions *nx-lexical-environment*))
   (nx1-progn-body context body))
 
 (export '(fart-current-lexenv))
@@ -27,5 +27,32 @@
 
 (export '(with-current-lexenv))
 
-(in-package cl-user)
+(defnx1 nx1-abbrolet abbrolet context ((&rest clauses) &body body)
+  "Define abbreviations for macros and functions, defined in current lexenv."
+  (let (res-macros res-funs)
+    (dolist (clause clauses
+	     (let ((new-env (new-lexical-environment *nx-lexical-environment*)))
+	       (setf (lexenv.functions new-env) `(,.res-macros ,.(lexenv.functions new-env))
+		     (lexenv.functions new-env) `(,.res-funs ,.(lexenv.functions new-env)))
+	       (let ((*nx-lexical-environment* new-env))
+		 (nx1-progn-body context body))))
+      (destructuring-bind (short long) clause
+	(let ((it (nx1-find-call-def long)))
+	  (if it
+	      (push `(,short function ,it . ,long) res-funs)
+	      (let ((it (macro-function long *nx-lexical-environment*)))
+		(if it
+		    (push `(,short macro . ,it) res-macros)
+		    (error "Name ~a does not designate any global or local function or macro" long)))))))))
+
+(export '(abbrolet))
+
+
+;; (in-package cl-curlex)
+
+;; (defun foo ()
+;;   (macrolet ((bar () 456))
+;;     (flet ((bar1 () 123))
+;;       (abbrolet ((foo1 bar))
+;; 		(foo1)))))
 
