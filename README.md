@@ -82,7 +82,7 @@ N.B.: Although the ultimate goal is to leak lexenv in all major implementations,
 will be (intentionally) implementation specific.
 
 N.B.: Is WITH-CURRENT-CC-LEXENV really necessary? After all, ANSI standard specifies, that one of the
-arguments to *MACROEXPAND-HOOK* function is lexical environment, in which macro is expanded.
+arguments to \*MACROEXPAND-HOOK\* function is lexical environment, in which macro is expanded.
 However, what it does not specify, is a way for a macro to actually access that variable, when macro
 is defined using DEFMACRO. And in fact, SBCL safely gensyms this variable away.
 So, the one, who wishes to access \*LEXENV\* in macros has 2 choices:
@@ -100,7 +100,7 @@ see e.g. my CL-LARVAL project to see, how it's used to define DSL *locally*.
                    (name1 a b c))
 
 TODO:
-  - support major CL implementations for *-current-lexenv macros
+  - support major CL implementations for \*-current-lexenv macros
     - SBCL
       - lexenv capture is not full, only names of functions, variables and so on are captured,
         advanced features like package locks and policies are not captured
