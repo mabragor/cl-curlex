@@ -12,15 +12,21 @@
 
 (export '(fart-current-lexenv))
 
+(defun sanitize-lexenv (lexenv)
+  (destructuring-bind (vars . funs) lexenv
+    (cons (mapcar #'butlast
+		  (remove-if (lambda (x)
+			       (or (not (consp x))
+				   (equal (car x) :declare)))
+			     vars))
+	  (mapcar #'butlast (remove-if-not #'consp funs)))))
+
+;; Introduce this name just for uniformity with other implementations
+(defun cc-sanitize-lexenv (lexenv)
+  (sanitize-lexenv lexenv))
+
 (defun c1with-current-lexenv (body)
-  (c1expr `(let ((,(intern "*LEXENV*")
-		  ',(destructuring-bind (vars . funs) *cmp-env*
-					(cons (mapcar #'butlast
-						      (remove-if (lambda (x)
-								   (or (not (consp x))
-								       (equal (car x) :declare)))
-								 vars))
-					      (mapcar #'butlast (remove-if-not #'consp funs))))))
+  (c1expr `(let ((,(intern "*LEXENV*") ',(sanitize-lexenv *cmp-env*)))
 	     (declare (special ,(intern "*LEXENV*")))
 	     (declare (ignorable ,(intern "*LEXENV*")))
 	     ,@body)))
@@ -28,7 +34,13 @@
 (setf (gethash 'with-current-lexenv *c1-dispatch-table*) 'c1with-current-lexenv)
 (setf (gethash 'with-current-lexenv *t1-dispatch-table*) 'c1with-current-lexenv)
 
-(export '(with-current-lexenv))
+(defmacro with-current-cc-lexenv (&body body)
+  `(let ((,(intern "*LEXENV*") (cc-sanitize-lexenv *lexenv*)))
+     (declare (special ,(intern "*LEXENV*")))
+     (declare (ignorable ,(intern "*LEXENV*")))
+     ,@body))
+
+(export '(with-current-lexenv with-current-cc-lexenv))
 
 (defun c1abbrolet (args)
   "Define abbreviations for macros and functions, defined in current lexenv."

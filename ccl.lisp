@@ -8,24 +8,44 @@
 
 (export '(fart-current-lexenv))
 
-(defnx1 nx1-with-current-lexenv with-current-lexenv context (&body body)
-  (flet ((assoc-keys (alist)
-	   (mapcar (lambda (x) (cons (car x) nil)) alist)))
-    (nx1-progn-body context
-		    `((let ((,(intern "*LEXENV*")
-			     (%istruct 'lexical-environment
-				       ,(lexenv.parent-env *nx-lexical-environment*)
-				       (list ,@(lexenv.functions *nx-lexical-environment*))
-				       (list ,@(lexenv.variables *nx-lexical-environment*))
-				       nil
-				       nil
-				       nil
-				       nil)))
-			(declare (special ,(intern "*LEXENV*")))
-			(declare (ignorable ,(intern "*LEXENV*")))
-			,@body)))))
+(defun assoc-keys (alist)
+  (mapcar (lambda (x) (cons (car x) nil)) alist))
 
-(export '(with-current-lexenv))
+(defun sanitize-lexenv (lexenv)
+  `(%istruct 'lexical-environment
+	     ,(lexenv.parent-env lexenv)
+	     (list ,@(lexenv.functions lexenv))
+	     (list ,@(lexenv.variables lexenv))
+	     nil
+	     nil
+	     nil
+	     nil))
+
+(defun cc-sanitize-lexenv (lexenv)
+  (%istruct 'lexical-environment
+	    (lexenv.parent-env lexenv)
+	    (lexenv.functions lexenv)
+	    (lexenv.variables lexenv)
+	    nil
+	    nil
+	    nil
+	    nil))
+  
+
+(defnx1 nx1-with-current-lexenv with-current-lexenv context (&body body)
+  (nx1-progn-body context
+		  `((let ((,(intern "*LEXENV*") ,(sanitize-lexenv *nx-lexical-environment*)))
+		      (declare (special ,(intern "*LEXENV*")))
+		      (declare (ignorable ,(intern "*LEXENV*")))
+		      ,@body))))
+
+(defmacro with-current-cc-lexenv (&body body)
+  `(let ((,(intern "*LEXENV*") (cc-sanitize-lexenv *nx-lexical-environment*)))
+     (declare (special ,(intern "*LEXENV*")))
+     (declare (ignorable ,(intern "*LEXENV*")))
+     ,@body))
+
+(export '(with-current-lexenv with-current-cc-lexenv))
 
 (defnx1 nx1-abbrolet abbrolet context ((&rest clauses) &body body)
   "Define abbreviations for macros and functions, defined in current lexenv."

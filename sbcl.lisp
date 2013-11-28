@@ -8,33 +8,55 @@
 
 (export '(fart-current-lexenv))
 
-(def-ir1-translator with-current-lexenv ((&body body) start next result)
-  (flet ((assoc-keys (alist)
-	   (mapcar (lambda (x) (cons (car x) nil)) alist)))
-    (ir1-convert start next result `(let ((,(intern "*LEXENV*")
-					   (internal-make-lexenv ',(assoc-keys (lexenv-funs *lexenv*))
-								 ',(assoc-keys (lexenv-vars *lexenv*))
-								 ',(assoc-keys (lexenv-blocks *lexenv*))
-								 ',(assoc-keys (lexenv-tags *lexenv*))
-								 ',(lexenv-type-restrictions *lexenv*)
-								 nil
-								 nil
-								 nil
-								 nil
-								 nil
-								 nil
-								 ;; ,(lexenv-lambda *lexenv*)
-								 ;; ,(lexenv-cleanup *lexenv*)
-								 ;; ',(lexenv-handled-conditions *lexenv*)
-								 ;; ,(lexenv-disabled-package-locks *lexenv*)
-								 ;; ',(lexenv-%policy *lexenv*)
-								 ;; ',(lexenv-user-data *lexenv*))))
-								 )))
-				      (declare (special ,(intern "*LEXENV*")))
-				      (declare (ignorable ,(intern "*LEXENV*")))
-				      ,@body))))
+(defun assoc-keys (alist)
+  (mapcar (lambda (x) (cons (car x) nil)) alist))
 
-(export '(with-current-lexenv))
+(defun sanitize-lexenv (lexenv)
+  `(internal-make-lexenv ',(assoc-keys (lexenv-funs lexenv))
+			 ',(assoc-keys (lexenv-vars lexenv))
+			 ',(assoc-keys (lexenv-blocks lexenv))
+			 ',(assoc-keys (lexenv-tags lexenv))
+			 ',(lexenv-type-restrictions lexenv)
+			 nil
+			 nil
+			 nil
+			 nil
+			 nil
+			 nil
+			 ;; ,(lexenv-lambda *lexenv*)
+			 ;; ,(lexenv-cleanup *lexenv*)
+			 ;; ',(lexenv-handled-conditions *lexenv*)
+			 ;; ,(lexenv-disabled-package-locks *lexenv*)
+			 ;; ',(lexenv-%policy *lexenv*)
+			 ;; ',(lexenv-user-data *lexenv*))))
+			 ))
+
+(defun cc-sanitize-lexenv (lexenv)
+  (internal-make-lexenv (assoc-keys (lexenv-funs lexenv))
+			(assoc-keys (lexenv-vars lexenv))
+			(assoc-keys (lexenv-blocks lexenv))
+			(assoc-keys (lexenv-tags lexenv))
+			(lexenv-type-restrictions lexenv)
+			nil
+			nil
+			nil
+			nil
+			nil
+			nil))
+  
+(def-ir1-translator with-current-lexenv ((&body body) start next result)
+  (ir1-convert start next result `(let ((,(intern "*LEXENV*") ,(sanitize-lexenv *lexenv*)))
+				    (declare (special ,(intern "*LEXENV*")))
+				    (declare (ignorable ,(intern "*LEXENV*")))
+				    ,@body)))
+
+(defmacro with-current-cc-lexenv (&body body)
+  `(let ((,(intern "*LEXENV*") (cc-sanitize-lexenv *lexenv*)))
+     (declare (special ,(intern "*LEXENV*")))
+     (declare (ignorable ,(intern "*LEXENV*")))
+     ,@body))
+
+(export '(with-current-lexenv with-current-cc-lexenv))
 
 (def-ir1-translator abbrolet (((&rest clauses) &body body) start next result)
   "Define abbreviations for macros and functions, defined in current lexenv."

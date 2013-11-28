@@ -6,6 +6,6 @@
 	#+cmucl #:c
 	#+ecl #:compiler
 	#+ccl #:ccl)
-  (:export #:with-current-lexenv #:fart-current-lexenv
+  (:export #:with-current-lexenv #:with-current-cc-lexenv #:fart-current-lexenv
 	   #+(or sbcl cmucl ecl ccl) #:abbrolet))
 

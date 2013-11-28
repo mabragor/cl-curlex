@@ -8,7 +8,7 @@
 
 (defsystem #:cl-curlex
   :serial t
-  :version "0.2"
+  :version "0.3"
   :description "Leak *LEXENV* variable from compilation into runtime"
   :author "Alexander Popolitov <popolit@gmail.com>"
   :license "GPL"
