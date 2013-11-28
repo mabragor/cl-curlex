@@ -1,7 +1,7 @@
 cl-curlex
 ===========
 
-Leak *LEXENV* variable which describes current lexical environment into body of a call.
+Leak \*LEXENV\* variable which describes current lexical environment into body of a call.
 Update: do other exotic stuff, which requires access to the current lexical environment.
 
 Basic example:
@@ -67,28 +67,28 @@ CL-USER> (macrolet ((bar () 123))
 
 Package exports several macros that do interesting stuff with current lexical environment:
   - FART-CURRENT-LEXENV which simply prints current lexenv, but not leaks it into its body,
-  - WITH-CURRENT-LEXENV, which leaks *LEXENV* variable into its body
+  - WITH-CURRENT-LEXENV, which leaks \*LEXENV\* variable into its body
   - WITH-CURRENT-CC-LEXENV - like WITH-CURRENT-LEXENV, only useful when defining macros.
-    I.e., instead of leaking *LEXENV* into the run-time from compile-time, it makes
-    lexical environment accesible to macros via *LEXENV* at compile-time.
+    I.e., instead of leaking \*LEXENV\* into the run-time from compile-time, it makes
+    lexical environment accesible to macros via \*LEXENV\* at compile-time.
   - ABBROLET, which allows to locally function or macro with another name
 
-N.B.: leaking is for reading purposes only, and *LEXENV* captures state of lexical environment as it were on enter
-to WITH-CURRENT-LEXENV, not as it is when *LEXENV* var is used - this is why in the "sophisticated" example
-B variable is not seen in *LEXENV* - it was not there, when we entered WITH-CURRENT-LEXENV, it was binded somewhere
+N.B.: leaking is for reading purposes only, and \*LEXENV\* captures state of lexical environment as it were on enter
+to WITH-CURRENT-LEXENV, not as it is when \*LEXENV\* var is used - this is why in the "sophisticated" example
+B variable is not seen in \*LEXENV\* - it was not there, when we entered WITH-CURRENT-LEXENV, it was binded somewhere
 inside.
 
-N.B.: Although the ultimate goal is to leak lexenv in all major implementations, the form of a *LEXENV*
+N.B.: Although the ultimate goal is to leak lexenv in all major implementations, the form of a \*LEXENV\*
 will be (intentionally) implementation specific.
 
 N.B.: Is WITH-CURRENT-CC-LEXENV really necessary? After all, ANSI standard specifies, that one of the
 arguments to *MACROEXPAND-HOOK* function is lexical environment, in which macro is expanded.
 However, what it does not specify, is a way for a macro to actually access that variable, when macro
 is defined using DEFMACRO. And in fact, SBCL safely gensyms this variable away.
-So, the one, who wishes to access *LEXENV* in macros has 2 choices:
-  - Roll his own implementation of DEFMACRO, which leaks *LEXENV* to all macros.
+So, the one, who wishes to access \*LEXENV\* in macros has 2 choices:
+  - Roll his own implementation of DEFMACRO, which leaks \*LEXENV\* to all macros.
     This is implementation-dependent.
-  - Write something like WITH-CURRENT-CC-LEXENV, which in principle allows to access *LEXENV*
+  - Write something like WITH-CURRENT-CC-LEXENV, which in principle allows to access \*LEXENV\*
     inside macro-definition, but this is not the default for all macro. This is also implementation-dependent.
 I decided to go second way, since it requires far less code and is, in my opinion, cleaner.
     
