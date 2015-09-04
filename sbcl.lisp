@@ -2,6 +2,21 @@
 
 (in-package #:sb-c)
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (flet ((version>= (version i ii iii)
+	   (multiple-value-bind (first first-dot)
+	       (parse-integer version :junk-allowed t)
+	     (if (>= first i)
+		 (multiple-value-bind (second second-dot)
+		     (parse-integer version :start (1+ first-dot)
+				    :junk-allowed t)
+		   (if (>= second ii)
+		       (>= (parse-integer version :start (1+ second-dot)
+					  :junk-allowed t)
+			   iii)))))))
+    (if (version>= (lisp-implementation-version) 1 2 15)
+	(pushnew :sbcl>=1.2.15 *features*))))
+
 (def-ir1-translator fart-current-lexenv ((&body body) start next result)
   (format t "current lexenv: ~a~%" *lexenv*)
   (ir1-convert-progn-body start next result body))
@@ -23,6 +38,7 @@
 			 nil
 			 nil
 			 nil
+			 #+sbcl>=1.2.15 ',(lexenv-parent lexenv)
 			 ;; ,(lexenv-lambda *lexenv*)
 			 ;; ,(lexenv-cleanup *lexenv*)
 			 ;; ',(lexenv-handled-conditions *lexenv*)
@@ -42,7 +58,8 @@
 			nil
 			nil
 			nil
-			nil))
+			nil
+			#+sbcl>=1.2.15 (lexenv-parent lexenv)))
   
 (def-ir1-translator with-current-lexenv ((&body body) start next result)
   (ir1-convert start next result `(let ((,(intern "*LEXENV*") ,(sanitize-lexenv *lexenv*)))
