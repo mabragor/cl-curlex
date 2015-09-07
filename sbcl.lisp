@@ -28,7 +28,10 @@
 			 nil
 			 nil
 			 nil
-			 #-sbcl-internal-make-lexenv-11 ',(lexenv-parent lexenv)
+			 #-sbcl-internal-make-lexenv-11
+			 ',(let ((it (lexenv-parent lexenv)))
+				(if it
+				    (sanitize-lexenv it)))
 			 ;; ,(lexenv-lambda *lexenv*)
 			 ;; ,(lexenv-cleanup *lexenv*)
 			 ;; ',(lexenv-handled-conditions *lexenv*)
