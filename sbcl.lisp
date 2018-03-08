@@ -7,6 +7,11 @@
          11)
       (pushnew :sbcl-internal-make-lexenv-11 *features*)))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (if (= (length (sb-kernel:%simple-fun-arglist #'sb-c::internal-make-lexenv))
+         13)
+      (pushnew :sbcl-internal-make-lexenv-13 *features*)))
+
 (def-ir1-translator fart-current-lexenv ((&body body) start next result)
   (format t "current lexenv: ~a~%" *lexenv*)
   (ir1-convert-progn-body start next result body))
@@ -22,6 +27,7 @@
 			 ',(assoc-keys (lexenv-blocks lexenv))
 			 ',(assoc-keys (lexenv-tags lexenv))
 			 ',(lexenv-type-restrictions lexenv)
+                         #+sbcl-internal-make-lexenv-13 nil
 			 nil
 			 nil
 			 nil
@@ -46,6 +52,7 @@
 			(assoc-keys (lexenv-blocks lexenv))
 			(assoc-keys (lexenv-tags lexenv))
 			(lexenv-type-restrictions lexenv)
+                         #+sbcl-internal-make-lexenv-13 nil
 			nil
 			nil
 			nil
